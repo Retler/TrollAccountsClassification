@@ -2,8 +2,15 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
+# Timezone of troll tweets is in UTC: https://github.com/fivethirtyeight/russian-troll-tweets/issues/9
+# The same goes for baseline_dataset (Twitter API returns UTC time per default)
+
 ### Import data ###
 data = pd.read_csv("tweets_full.csv", parse_dates=["date"])
+
+baseline_data = pd.read_csv("baseline_dataset.csv", parse_dates=["publish_date"])
+baseline_data.rename(columns={"publish_date": "datetime"}, inplace=True)
+baseline_data["date"] = baseline_data["datetime"].apply(lambda x: x.date())
 data.rename(columns={"date": "datetime"}, inplace=True)
 data["date"] = data["datetime"].apply(lambda x: x.date())
 
@@ -63,6 +70,17 @@ data["date"] = data["datetime"].apply(lambda x: x.date())
 
 data["hour"] = data["datetime"].apply(lambda x: x.hour)
 hour_bins = data.groupby("hour")["hour"].count()
+plt.bar(np.arange(len(hour_bins)), hour_bins)
+plt.xticks(np.arange(len(hour_bins)), np.arange(len(hour_bins)))
+plt.xlabel("hour of day")
+plt.ylabel("tweets")
+
+plt.show()
+
+### Plot 'date' hour distribution for baseline ###
+
+baseline_data["hour"] = baseline_data["datetime"].apply(lambda x: x.hour)
+hour_bins = baseline_data.groupby("hour")["hour"].count()
 plt.bar(np.arange(len(hour_bins)), hour_bins)
 plt.xticks(np.arange(len(hour_bins)), np.arange(len(hour_bins)))
 plt.xlabel("hour of day")

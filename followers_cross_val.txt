@@ -1,0 +1,29 @@
+Cross validation results of the followers regression model:
+
+d=1, mean=0.47991905871005314, std=0.18502027031307788
+d=2, mean=0.5118007959809441, std=0.18418222189388916
+d=3, mean=0.5255448318399903, std=0.17996842895562012
+d=4, mean=0.5239045369247991, std=0.18033508460057465
+d=5, mean=0.51982831100267, std=0.18078344980507213
+d=6, mean=0.5264826789848644, std=0.1820173945158466
+d=7, mean=0.5150583652560558, std=0.17417462179744161
+d=8, mean=0.5150185127933643, std=0.17110259575431144
+
+R2 score of the final model on test data was 0.45
+The low score is due to high variation in the number of followers. Few accounts have many followers and most accounts have few followers.
+
+Cross validation results of the following regression model:
+
+d=1, mean=0.7794283925793503, std=0.05998674237259702
+d=2, mean=0.7904029422906854, std=0.06708413337756286
+d=3, mean=0.8044755403525523, std=0.0661784806819039
+d=4, mean=0.8288318290257088, std=0.07117953475836519
+d=5, mean=0.831936526598183, std=0.06964591119347849
+d=6, mean=0.8275611162511721, std=0.06726249411639951
+d=7, mean=0.7833623226274569, std=0.06628498537244633
+d=8, mean=0.7569120226941659, std=0.06328545486427764
+
+R2 score of the final model on test data was 0.78
+
+Conclusion:
+It is hard to use a regression model to determine followers/following rates of accounts ranging from age 0 to 10 years. The variation is too hight to capture in such a model. The model fits the overall data well, but for particularly young accounts the fit is bad. This is also evident from the R2 score for the final model when looking at accounts that are at most 12 weeks old. The R2 score is almost 0, telling us that the model is not suitable for accounts with such a big variance in age. Based on this observation, it has been chosen to use a simple 5-week moving average of followers and following counts of the accounts to approximate the age of the accounts. 

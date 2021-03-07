@@ -18,20 +18,30 @@ def age_at_tweet(tweet_datetime, author):
 
     return user_age_weeks
 
-DATASET = "sample_with_data4.csv"
+FOLLOWERS_DATASET = "followers_10wk_avg.csv"
+FOLLOWING_DATASET = "following_10wk_avg.csv"
+DATASET = "sample_with_data3.csv"
 URL = "https://api.twitter.com/2/users"
-BATCH_SIZE = 300
+BATCH_SIZE = 100
 HEADERS_DEV =  {"Authorization": "Bearer AAAAAAAAAAAAAAAAAAAAAD80MwEAAAAAYLao%2FyVAFLhPqfayG4zkCCbaOlo%3DmgqWX8HrEL440jXYVKXiRIgZkDGWcAOiILQ3gmjlwZHcVMYJEx"}
 
 data = pd.read_csv(DATASET, header=None, names=["author", "content", "publish_date", "post_type", "retweet", "tweet_id"], dtype={"author": str})
+followers_data = pd.read_csv(FOLLOWERS_DATASET)
+following_data = pd.read_csv(FOLLOWING_DATASET)
 author_ids = data["author"].unique().astype(str)
 processed_users = 0
 records = []
 
+print(f"author_id's size: {len(author_ids)}")
+
 for b in batch(author_ids, BATCH_SIZE):
     query_params = {"ids": ",".join(b), "user.fields": "created_at"}
     response = requests.request("GET", URL, params=query_params, headers=HEADERS_DEV)
-    records.extend(response.json()["data"])
+    try:
+        records.extend(response.json()["data"])
+    except KeyError:
+        print(f"Response code: {response.status_code}")
+        print(f"Error: {response.json()}")
     processed_users += len(b)
     print(f"Processed users: {processed_users}/{len(author_ids)}")
 
@@ -47,3 +57,9 @@ data["publish_date"] = pd.to_datetime(data["publish_date"])
 print("Calculating age at tweet")
 data["age_at_tweet"] = data["publish_date"] - data["user_created_at"]
 data["age_at_tweet_weeks"] = data["age_at_tweet"].apply(lambda x: int(x.days / 7))
+
+data["followers"] = data["age_at_tweet_weeks"].apply(lambda x: followers_data["followers"].iloc[x])
+data["following"] = data["age_at_tweet_weeks"].apply(lambda x: following_data["following"].iloc[x])
+
+data.drop(columns=["user_created_at", "age_at_tweet", "age_at_tweet_weeks"], inplace=True)
+data.to_csv("baseline_dataset.csv")

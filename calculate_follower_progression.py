@@ -5,7 +5,13 @@ This information is aggregated to calculate the average follower/following progr
 import pandas as pd
 from datetime import datetime
 import matplotlib.pyplot as plt
-import numpy
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.pipeline import make_pipeline
+from sklearn.linear_model import LinearRegression
+from sklearn import model_selection
+from sklearn.metrics import r2_score
 
 DATESET = "user_data.csv"
 
@@ -18,14 +24,72 @@ ten_year_accounts = data[data["age_weeks"] <= 520]
 plt.plot(ten_year_accounts.groupby("age_weeks").count()["author"])
 plt.xlabel("Account age in weeks")
 plt.ylabel("Number of accounts")
+plt.title("10 week MA of 'followers' development")
 plt.show() # The high number of young accounts can be explained by bots or inauthentic accounts which are closed over time
 
-group = ten_year_accounts.groupby(["age_weeks"])["followers"].mean()
-x = group.keys()
-y = group.values
-model = numpy.poly1d(numpy.polyfit(x, y, 3))
-plt.plot(group, label="Follower avg.")
-plt.plot(x, model(x), label="regression")
-plt.xlabel("Account age in weeks")
-plt.ylabel("Average number of followers")
+# Plot moving avg. of followers
+ten_year_accounts.groupby("age_weeks")["followers"].mean().rolling(10, 1).mean().plot()
+plt.xlabel("Age (weeks)")
+plt.ylabel("Followers")
+plt.title("10 week MA of 'following' development")
 plt.show()
+# Export
+# ten_year_accounts.groupby("age_weeks")["followers"].mean().rolling(10, 1).mean().to_csv("followers_10wk_avg.csv")
+
+# Plot moving avg. of following
+ten_year_accounts.groupby("age_weeks")["following"].mean().rolling(10, 1).mean().plot()
+plt.xlabel("Age (weeks)")
+plt.ylabel("Following")
+plt.show()
+# Export
+# ten_year_accounts.groupby("age_weeks")["following"].mean().rolling(10, 1).mean().to_csv("following_10wk_avg.csv")
+
+# # Set which metrics we want to train the model over
+# metrics = ["followers", "following"]
+
+# # Train-test split
+# train, test = train_test_split(ten_year_accounts, test_size=0.33, random_state=1234)
+
+# # Save models in map
+# models = {}
+
+# for metric in metrics:
+#     print(f"Training for metric {metric}")
+    
+#     train_metric = train.groupby("age_weeks")[metric].mean()
+#     test_metric =  test.groupby("age_weeks")[metric].mean()
+#     X_train, y_train = train_metric.keys().to_numpy().reshape(-1, 1), train_metric.values
+#     X_test, y_test = test_metric.keys().to_numpy().reshape(-1, 1), test_metric.values
+#     degrees = [1,2,3,4,5,6,7,8]
+    
+#     # Parameter tuning using 5-fold cross validation (followers)
+#     kfold = model_selection.KFold(n_splits=5, random_state=1234, shuffle=True)
+#     means = []
+#     for d in degrees:
+#         polyreg = make_pipeline(PolynomialFeatures(d), LinearRegression())
+#         results = model_selection.cross_val_score(polyreg, X_train, y_train, cv=kfold, scoring='r2')
+#         means.append(results.mean())
+#         print(f"d={d}, mean={results.mean()}, std={results.std()}")
+#     # d=4 has been chosen as the best result
+
+#     d = np.argmax(means) + 1
+#     print(f"plotting regression with d={d}")
+#     polyreg = make_pipeline(PolynomialFeatures(d), LinearRegression())
+#     polyreg.fit(X_test, y_test)
+#     plt.plot(X_test, y_test)
+#     y_pred = polyreg.predict(X_test)
+#     r2 = r2_score(y_test, y_pred)
+#     print(f"R2 score of final model: {r2}")
+#     plt.plot(X_test, y_pred, color="black")
+#     plt.title(f"Polynomial regression with degree {d}")
+#     plt.show()
+
+#     models[metric] = polyreg
+    
+
+# Calculate R2 of followers predictions of accounts that are at most 12 weeks old
+# under_12 = test[test["age_weeks"] <= 12].groupby("age_weeks")["followers"].mean()
+# model = models["followers"]
+# y_pred = model.predict(under_12.keys().to_numpy().reshape(-1,1))
+# r2 = r2_score(under_12.values, y_pred)
+# r2 is almost 0 here...
