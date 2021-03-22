@@ -6,12 +6,6 @@ import pandas as pd
 from datetime import datetime
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import PolynomialFeatures
-from sklearn.pipeline import make_pipeline
-from sklearn.linear_model import LinearRegression
-from sklearn import model_selection
-from sklearn.metrics import r2_score
 
 DATESET = "user_data.csv"
 
@@ -24,22 +18,30 @@ ten_year_accounts = data[data["age_weeks"] <= 520]
 plt.plot(ten_year_accounts.groupby("age_weeks").count()["author"])
 plt.xlabel("Account age in weeks")
 plt.ylabel("Number of accounts")
-plt.title("10 week MA of 'followers' development")
+plt.title("Number of accounts per age bin")
 plt.show() # The high number of young accounts can be explained by bots or inauthentic accounts which are closed over time
 
+# Limit accounts to last year
+ten_year_accounts["age_weeks"] = ten_year_accounts["age_weeks"].apply(lambda x: x - 1)
+five_year_accounts = ten_year_accounts[ten_year_accounts["age_weeks"] <= 260]
+
 # Plot moving avg. of followers
-ten_year_accounts.groupby("age_weeks")["followers"].mean().rolling(10, 1).mean().plot()
-plt.xlabel("Age (weeks)")
+plt.subplot(1,2,1)
+five_year_accounts.groupby("age_weeks")["followers"].mean().rolling(5, 1).mean().plot()
+plt.xlabel("Account age (weeks)")
 plt.ylabel("Followers")
-plt.title("10 week MA of 'following' development")
-plt.show()
+plt.title("5 week MA of 'followers' development")
+
 # Export
 # ten_year_accounts.groupby("age_weeks")["followers"].mean().rolling(10, 1).mean().to_csv("followers_10wk_avg.csv")
 
 # Plot moving avg. of following
-ten_year_accounts.groupby("age_weeks")["following"].mean().rolling(10, 1).mean().plot()
-plt.xlabel("Age (weeks)")
+plt.subplot(1,2,2)
+five_year_accounts.groupby("age_weeks")["following"].mean().rolling(5, 1).mean().plot()
+plt.xlabel("Account age (weeks)")
 plt.ylabel("Following")
+plt.title("5 week MA of 'following' development")
+
 plt.show()
 # Export
 # ten_year_accounts.groupby("age_weeks")["following"].mean().rolling(10, 1).mean().to_csv("following_10wk_avg.csv")
