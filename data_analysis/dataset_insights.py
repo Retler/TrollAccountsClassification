@@ -8,7 +8,7 @@ plt.style.use('seaborn')
 # The same goes for baseline_dataset (Twitter API returns UTC time per default)
 
 ### Import data ###
-data = pd.read_csv("tweets_full.csv", parse_dates=["date"], nrows=100000)
+data = pd.read_csv("tweets_full.csv", parse_dates=["date"])
 
 #baseline_data = pd.read_csv("baseline_dataset_english.csv", parse_dates=["publish_date"])
 #baseline_data.rename(columns={"publish_date": "datetime"}, inplace=True)
