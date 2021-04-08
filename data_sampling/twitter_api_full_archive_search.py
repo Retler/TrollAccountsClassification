@@ -74,8 +74,11 @@ def get_authors_tweets(author_id, start_time, end_time):
 
             if response.status_code == 429:
                 log("Reached requests limit! Re-trying in 1 minute..")
-
                 time.sleep(60)
+                continue
+            if response.status_code == 503:
+                log("Service unavailable, waiting 10 seconds.")
+                time.sleep(10)
                 continue
             if response.status_code != 200:
                 log("Response error recieved:")
@@ -90,14 +93,15 @@ def get_authors_tweets(author_id, start_time, end_time):
         except KeyError:
             log(f"No more pages left. Parsed pages: {pagenum}")
             break
-        except requests.exceptions.ConnectionError:
-            log(f"Failed to establish a connection! Retrying..")
+        except (requests.exceptions.ConnectionError, requests.exceptions.ChunkedEncodingError) as e:
+            log(f"Failed to establish a connection! Retrying in 10 seconds")
+            time.sleep(10)
             continue
     
     return records
 
 def main():
-    author_ids = read_author_ids()[5000:] # Take every 10th user to get a more distributed sample
+    author_ids = read_author_ids()[5000:]
     random.shuffle(author_ids)
     parsed_users = pd.read_csv("sample_with_data2.csv", lineterminator='\n').iloc[:,0]
     
