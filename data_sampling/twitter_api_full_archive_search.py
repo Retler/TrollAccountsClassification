@@ -3,6 +3,7 @@ import requests
 import os
 import time
 import pandas as pd
+import random
 
 HEADERS = {"Authorization": "Bearer AAAAAAAAAAAAAAAAAAAAAOAKNAEAAAAAcU2NZCJ8R8WO%2FDgVKx00BGm8IO4%3Drc61wrLOGqDeu28c7XYqp8DnYKx0vIQ7tTol7L5xMAUNBj50s0"}
 URL = "https://api.twitter.com/2/tweets/search/all"
@@ -10,7 +11,6 @@ LIVENESS_URL = "https://europe-west3-es-staging-276908.cloudfunctions.net/livene
 
 def log(message):
     print(message)
-    requests.get(f"{LIVENESS_URL}?message={message}")
 
 def read_author_ids() -> [str]:
     with open('sample.txt') as f:
@@ -56,7 +56,10 @@ def get_authors_tweets(author_id, start_time, end_time):
     response = requests.request("GET", URL, headers=HEADERS, params=query_params)
 
     if response.status_code != 200:
-        raise Exception(response.status_code, response.text)
+        print(f"Got status code {response.status_code} with response {response.text}! Skipping author {author_id}")
+        return []
+        
+        
         
     result = response.json()
     records = data_to_record(result, author_id)
@@ -87,21 +90,29 @@ def get_authors_tweets(author_id, start_time, end_time):
         except KeyError:
             log(f"No more pages left. Parsed pages: {pagenum}")
             break
+        except requests.exceptions.ConnectionError:
+            log(f"Failed to establish a connection! Retrying..")
+            continue
     
     return records
 
 def main():
-    author_ids = read_author_ids()
+    author_ids = read_author_ids()[5000:] # Take every 10th user to get a more distributed sample
+    random.shuffle(author_ids)
+    parsed_users = pd.read_csv("sample_with_data2.csv", lineterminator='\n').iloc[:,0]
     
-    start_time = "2016-12-01T00:00:00Z"
+    start_time = "2016-01-01T00:00:00Z"
     end_time = "2016-12-31T23:59:59Z"
-    result_file = "sample_with_data.csv"
+    result_file = "sample_with_data2.csv"
     
     for author_id in author_ids:
+        if author_id in parsed_users:
+            print(f"Author {author_id} already parsed. Skipping.")
+            continue
         result = get_authors_tweets(author_id, start_time, end_time)
         log(f"Parsed {len(result)} records for author {author_id} for {start_time} to {end_time}")
         log(f"Appending records to {result_file}")
-        if len(result > 0):
+        if len(result) > 0:
             keys = result[0].keys()
             with open(result_file, 'a', newline='')  as output_file:
                 dict_writer = csv.DictWriter(output_file, keys)

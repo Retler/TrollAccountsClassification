@@ -10,7 +10,7 @@ plt.style.use('seaborn')
 punctuations = '!"$%&\'()*+,-./:;<=>?[\\]^_`{|}~'
 digits = '0123456789'
 table = str.maketrans("", "", punctuations + digits)
-additional_stopwords = ["rt", "-", "amp", "\|", "&", "�", "its", "it", "u", "im", "https", "httpst", "httpstco", "cant", "you", "thats", "youre", "#"]
+additional_stopwords = ["rt", "-", "amp", "\|", "&", "�", "its", "it", "u", "im", "https", "httpst", "httpstco", "cant", "you", "thats", "youre", "#", "dont"]
 
 def is_hashtag(word):
     return word != "" and word[0] == "#"
@@ -37,7 +37,7 @@ def preprocess(s, word_check=(lambda x: True)):
     return result 
 
 ### Import data ###
-data = pd.read_csv("troll_data_2016_english.csv", usecols=["content", "author"])
+data = pd.read_csv("troll_data_2016_english.csv", usecols=["content", "author"], lineterminator='\n')
 data["hashtags"] = data["content"].apply(lambda x: preprocess(str(x), is_hashtag))
 data["words"] = data["content"].apply(lambda x: preprocess(str(x), is_not_hashtag))
 troll_hashtag_vocabulary = data["hashtags"].explode().value_counts().sort_values().tail(30)
@@ -50,31 +50,31 @@ baseline_data["words"] = baseline_data["content"].apply(lambda x: preprocess(str
 baseline_hashtag_vocabulary = baseline_data["hashtags"].explode().value_counts().sort_values().tail(30)
 baseline_word_vocabulary = baseline_data["words"].explode().value_counts().sort_values().tail(30)
 
-print("1")
-troll_vs_troll_hashtag_hitrate = data.groupby("author")["hashtags"].sum().apply(lambda x: hit_rate(troll_hashtag_vocabulary, x))
-print("2")
-troll_vs_troll_word_hitrate = data.groupby("author")["words"].sum().apply(lambda x: hit_rate(troll_word_vocabulary, x))
-print("3")
-troll_vs_baseline_hashtag_hitrate = data.groupby("author")["hashtags"].sum().apply(lambda x: hit_rate(baseline_hashtag_vocabulary, x))
-print("4")
-troll_vs_baseline_word_hitrate = data.groupby("author")["words"].sum().apply(lambda x: hit_rate(baseline_word_vocabulary, x))
+# print("1")
+# troll_vs_troll_hashtag_hitrate = data.groupby("author")["hashtags"].sum().apply(lambda x: hit_rate(troll_hashtag_vocabulary, x))
+# print("2")
+# troll_vs_troll_word_hitrate = data.groupby("author")["words"].sum().apply(lambda x: hit_rate(troll_word_vocabulary, x))
+# print("3")
+# troll_vs_baseline_hashtag_hitrate = data.groupby("author")["hashtags"].sum().apply(lambda x: hit_rate(baseline_hashtag_vocabulary, x))
+# print("4")
+# troll_vs_baseline_word_hitrate = data.groupby("author")["words"].sum().apply(lambda x: hit_rate(baseline_word_vocabulary, x))
 
-print("5")
-baseline_vs_baseline_hashtag_hitrate = baseline_data.groupby("author")["hashtags"].sum().apply(lambda x: hit_rate(baseline_hashtag_vocabulary, x))
-print("6")
-baseline_vs_baseline_word_hitrate = baseline_data.groupby("author")["words"].sum().apply(lambda x: hit_rate(baseline_word_vocabulary, x))
-print("7")
-baseline_vs_troll_hashtag_hitrate = baseline_data.groupby("author")["hashtags"].sum().apply(lambda x: hit_rate(troll_hashtag_vocabulary, x))
-print("8")
-baseline_vs_troll_word_hitrate = baseline_data.groupby("author")["words"].sum().apply(lambda x: hit_rate(troll_word_vocabulary, x))
-
-
-# fig, (ax1, ax2) = plt.subplots(1, 2, sharex=True)
-# fig.text(0.5, 0.04, 'frequency', ha='center')
-
-# ax1.barh(baseline_vocabulary.keys(), baseline_vocabulary.values, 0.25)
-
-# ax2.barh(troll_vocabulary.keys(), troll_vocabulary.values, 0.25)
+# print("5")
+# baseline_vs_baseline_hashtag_hitrate = baseline_data.groupby("author")["hashtags"].sum().apply(lambda x: hit_rate(baseline_hashtag_vocabulary, x))
+# print("6")
+# baseline_vs_baseline_word_hitrate = baseline_data.groupby("author")["words"].sum().apply(lambda x: hit_rate(baseline_word_vocabulary, x))
+# print("7")
+# baseline_vs_troll_hashtag_hitrate = baseline_data.groupby("author")["hashtags"].sum().apply(lambda x: hit_rate(troll_hashtag_vocabulary, x))
+# print("8")
+# baseline_vs_troll_word_hitrate = baseline_data.groupby("author")["words"].sum().apply(lambda x: hit_rate(troll_word_vocabulary, x))
 
 
-# plt.show()
+fig, (ax1, ax2) = plt.subplots(1, 2, sharex=True)
+fig.text(0.5, 0.04, 'frequency', ha='center')
+
+ax1.barh(baseline_hashtag_vocabulary.keys(), baseline_hashtag_vocabulary.values / baseline_hashtag_vocabulary.values.sum(), 0.25)
+
+ax2.barh(troll_hashtag_vocabulary.keys(), troll_hashtag_vocabulary.values / troll_hashtag_vocabulary.values.sum(), 0.25)
+
+
+plt.show()
