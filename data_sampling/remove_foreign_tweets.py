@@ -20,9 +20,9 @@ def calculate_user_language(authors_tweets):
     print(f"Parsed {USERS_PARSED}/{users_total} users")
     print(f"sum english tweets: {sum(english_tweets)}, len english tweets: {len(english_tweets)}")
 
-    return sum(english_tweets) / len(english_tweets) >= 0.8 # user language is english if >= 80% of the tweets are english
+    return sum(english_tweets) / len(english_tweets) >= 0.7 # user language is english if >= 70% of the tweets are english
 
-baseline_data = pd.read_csv("baseline_dataset.csv", parse_dates=["publish_date"])
+baseline_data = pd.read_csv("baseline_dataset2.csv", parse_dates=["publish_date"], lineterminator='\n')
 users_total = len(baseline_data["author"].unique())
 english_users = baseline_data.groupby("author", group_keys=False).apply(lambda x: x.sample(n=10, replace=True)).groupby("author")["content"].apply(calculate_user_language)
-#baseline_data[baseline_data["author"].map(english_users)].to_csv("baseline_dataset_english.csv")
+baseline_data[baseline_data["author"].map(english_users)].to_csv("baseline_dataset_english2.csv")

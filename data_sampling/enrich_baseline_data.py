@@ -14,7 +14,7 @@ def batch(iterable, n=1):
 
 FOLLOWERS_DATASET = "followers_10wk_avg.csv"
 FOLLOWING_DATASET = "following_10wk_avg.csv"
-DATASET = "sample_with_data_cleaned.csv"
+DATASET = "sample_with_data_cleaned2.csv"
 URL = "https://api.twitter.com/2/users"
 BATCH_SIZE = 100
 HEADERS_DEV =  {"Authorization": "Bearer AAAAAAAAAAAAAAAAAAAAAD80MwEAAAAAYLao%2FyVAFLhPqfayG4zkCCbaOlo%3DmgqWX8HrEL440jXYVKXiRIgZkDGWcAOiILQ3gmjlwZHcVMYJEx"}
@@ -65,5 +65,5 @@ data["followers"] = data["age_at_tweet_weeks"].map(followers_dict)
 following_dict = data["age_at_tweet_weeks"].map(following_data.to_dict()["following"])
 data["following"] = data["age_at_tweet_weeks"].map(following_dict)
 
-#data.drop(columns=["user_created_at", "age_at_tweet", "age_at_tweet_weeks"], inplace=True)
-#data.to_csv("baseline_dataset.csv")
+data.drop(columns=["user_created_at", "age_at_tweet", "age_at_tweet_weeks"], inplace=True)
+data.to_csv("baseline_dataset2.csv")
