@@ -1,54 +1,26 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-import string
-from datetime import datetime
+import sys
+sys.path.append('./data_analysis')
 from gensim.parsing.preprocessing import remove_stopwords
 from gensim.parsing.preprocessing import strip_multiple_whitespaces
+from vocabulary_helpers import preprocess, is_hashtag, is_not_hashtag, hit_rate
 
 plt.style.use('seaborn')
-punctuations = '!"$%&\'()*+,-./:;<=>?[\\]^_`{|}~'
-digits = '0123456789'
-table = str.maketrans("", "", punctuations + digits)
-additional_stopwords = ["rt", "-", "amp", "\|", "&", "�", "its", "it", "u", "im", "https", "httpst", "httpstco", "cant", "you", "thats", "youre", "#", "dont", "#a", ""]
-HIT_RATE = 0
-
-def is_hashtag(word):
-    return word != "" and word[0] == "#"
-
-def is_not_hashtag(word):
-    return word != "" and word[0] != "#"
-
-def hit_rate(vocab, words):
-    global HIT_RATE
-    HIT_RATE += 1
-    print(f"Calculating hitrate: {HIT_RATE}")
-    if len(words) == 0:
-        return 0
-    hits = vocab.reindex(words).count() / len(words)
-    
-    return hits
-
-def preprocess(s, word_check=(lambda x: True)):
-    # TODO: remove links
-    lowercase = s.lower()
-    no_stopwords = remove_stopwords(lowercase) # remove stopwords 
-    no_punctuations = no_stopwords.translate(table) # remove punctuations
-    no_multiple_whitespaces = strip_multiple_whitespaces(no_punctuations) # remove multiple whitespaces
-    result = no_multiple_whitespaces.split()
-    result = [word for word in result if (word not in additional_stopwords and word_check(word))]
-    
-    return result 
+plt.rcParams['font.size'] = '20'
+plt.rcParams['font.weight'] = 'bold'
+plt.rcParams['axes.labelweight'] = 'bold'
 
 ### Import data ###
-data = pd.read_csv("troll_data_2016_english.csv", usecols=["content", "author"], lineterminator='\n', nrows=500000)
+data = pd.read_csv("troll_data_2016_english.csv", usecols=["content", "author"], lineterminator='\n')
 #data["hashtags"] = data["content"].apply(lambda x: preprocess(str(x), is_hashtag))
 data["words"] = data["content"].apply(lambda x: preprocess(str(x), lambda x: not is_hashtag(x)))
 #troll_hashtag_vocabulary = data["hashtags"].explode().value_counts().sort_values().tail(30)
 troll_word_vocabulary = data["words"].explode().value_counts().sort_values().tail(30)
 
 print("1")
-baseline_data = pd.read_csv("baseline_data_2016_english.csv", lineterminator='\n', usecols=["author", "content"], nrows=1000000)
+baseline_data = pd.read_csv("baseline_data_2016_english.csv", lineterminator='\n', usecols=["author", "content"])
 # baseline_data["hashtags"] = baseline_data["content"].apply(lambda x: preprocess(str(x), is_hashtag))
 print("2")
 baseline_data["words"] = baseline_data["content"].apply(lambda x: preprocess(str(x), is_not_hashtag))
