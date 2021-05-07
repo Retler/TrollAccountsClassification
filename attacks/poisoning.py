@@ -1,3 +1,5 @@
+from sklearn import svm
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -6,80 +8,90 @@ from sklearn.metrics import accuracy_score
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+plt.style.use('seaborn')
+plt.rcParams['font.size'] = '20'
+plt.rcParams['font.weight'] = 'bold'
+plt.rcParams['axes.labelweight'] = 'bold'
 
 def poison(y, p):
     return [(1-s) if np.random.rand() < p else s for s in y]
 
-def train_poisoned_rf(X,y,p):
+def train_poisoned_clf(X,y,p,clf):
     y_train_poisoned = poison(y, p)
-    rf_clf = RandomForestClassifier(n_estimators=25, max_features="sqrt", max_depth=None)
-    rf_clf.fit(X_train_transformed, y_train_poisoned)
+    clf.fit(X, y_train_poisoned)
 
-    return rf_clf
+    return clf
 
 data_train = pd.read_csv("combined_data_train.csv")
 data_test = pd.read_csv("combined_data_test.csv")
+data_test = pd.read_csv("combined_data_val.csv")
 
 X_train,y_train = data_train[["h_hitrate", "sentiment", "lifespan"]], data_train["label"]
 y_train = y_train.map({"troll": 1, "baseline": 0})
 
+X_val,y_val = data_test[["h_hitrate", "sentiment", "lifespan"]], data_test["label"]
+y_val = y_val.map({"troll": 1, "baseline": 0})
+
 X_test,y_test = data_test[["h_hitrate", "sentiment", "lifespan"]], data_test["label"]
 y_test = y_test.map({"troll": 1, "baseline": 0})
-
-
-y_train_poisoned_25 = poison(y_train, 0.25)
-y_train_poisoned_50 = poison(y_train, 0.50)
 
 scaler = StandardScaler()
 scaler.fit(X_train)
 X_train_transformed = scaler.transform(X_train)
 X_test_transformed = scaler.transform(X_test)
+X_val_transformed = scaler.transform(X_val)
 
-rf_clf = train_poisoned_rf(X_train_transformed, y_train, 0)
-rf_y_test_pred = rf_clf.predict(X_test_transformed)
-rf_test_report = classification_report(y_test, rf_y_test_pred)
-print("RF test report at p=0.00")
-print(rf_test_report)
+clf = train_poisoned_clf(X_train_transformed, y_train, 0, RandomForestClassifier(n_estimators=25, max_depth=None, max_features='sqrt'))
+y_test_pred = clf.predict(X_test_transformed)
+rf_report = classification_report(y_test, y_test_pred)
+print("RF report for p=0")
+print(rf_report)
 print()
 
-rf_clf = train_poisoned_rf(X_train_transformed, y_train, 0.10)
-rf_y_test_pred = rf_clf.predict(X_test_transformed)
-rf_test_report = classification_report(y_test, rf_y_test_pred)
-print("RF test report at p=0.10")
-print(rf_test_report)
+clf = train_poisoned_clf(X_train_transformed, y_train, 0.1, RandomForestClassifier(n_estimators=25, max_depth=None, max_features='sqrt'))
+y_test_pred = clf.predict(X_test_transformed)
+rf_report = classification_report(y_test, y_test_pred)
+print("RF report for p=0.1")
+print(rf_report)
 print()
 
-rf_clf = train_poisoned_rf(X_train_transformed, y_train, 0.25)
-rf_y_test_pred = rf_clf.predict(X_test_transformed)
-rf_test_report = classification_report(y_test, rf_y_test_pred)
-print("RF test report at p=0.25")
-print(rf_test_report)
+clf = train_poisoned_clf(X_train_transformed, y_train, 0.25, RandomForestClassifier(n_estimators=25, max_depth=None, max_features='sqrt'))
+y_test_pred = clf.predict(X_test_transformed)
+rf_report = classification_report(y_test, y_test_pred)
+print("RF report for p=0.25")
+print(rf_report)
 print()
 
-rf_clf = train_poisoned_rf(X_train_transformed, y_train, 0.50)
-rf_y_test_pred = rf_clf.predict(X_test_transformed)
-rf_test_report = classification_report(y_test, rf_y_test_pred)
-print("RF test report at p=0.50")
-print(rf_test_report)
-print()    
+clf = train_poisoned_clf(X_train_transformed, y_train, 0.5, RandomForestClassifier(n_estimators=25, max_depth=None, max_features='sqrt'))
+y_test_pred = clf.predict(X_test_transformed)
+rf_report = classification_report(y_test, y_test_pred)
+print("RF report for p=0.5")
+print(rf_report)
+print()
 
+models = [RandomForestClassifier(n_estimators=25, max_depth=None, max_features='sqrt'), KNeighborsClassifier(n_neighbors=200, weights='uniform'), svm.SVC(C=0.1, gamma=0.01, kernel='sigmoid')]
 ps = np.linspace(0,1,50)
-accss = []
-for _ in range(10):
-    accs = []
-    for p in ps:
-        rf_clf = train_poisoned_rf(X_train_transformed, y_train, p)
-        rf_y_test_pred = rf_clf.predict(X_test_transformed)
-        acc = accuracy_score(y_test, rf_y_test_pred)
-        accs.append(acc)
-    accss.append(accs)
+meanss = []
+stdss = []
 
-means = np.array(accss).mean(axis=0)
-stds = np.array(accss).std(axis=0)
+for m in models:
+    accss = []
+    for _ in range(10):
+        accs = []
+        for p in ps:
+            clf = train_poisoned_clf(X_train_transformed, y_train, p, m)
+            val_pred = clf.predict(X_val_transformed)
+            acc = accuracy_score(y_val, val_pred)
+            accs.append(acc)
+        accss.append(accs)
 
-plt.plot(ps, means, color='c', label="empirical accuracy development over p (10 run avg.)")
-plt.plot(ps, means+stds, color='c', linestyle='dashed', alpha=0.5, label="standard deviation")
-plt.plot(ps, means-stds, color='c', linestyle='dashed', alpha=0.5)
+    meanss.append(np.array(accss).mean(axis=0))
+    stdss.append(np.array(accss).std(axis=0))
+
+colors = ['c', 'm', 'y']
+for means,stds,m,c in zip(meanss, stdss, models, colors):
+    plt.plot(ps, means, color=c, label=type(m).__name__)
+
 plt.xlabel("p (poisoning rate)")
 plt.ylabel("model accuracy")
 plt.legend()
