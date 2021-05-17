@@ -45,6 +45,10 @@ print("calculating sentiment")
 troll_sentiment_test = data_test.groupby("author")["sentiment"].mean()
 baseline_sentiment_test = baseline_test.groupby("author")["sentiment"].mean()
 
+### Subjectivity  ###
+troll_subjectivity_test = data_test.groupby("author")["subjectivity"].mean()
+baseline_subjectivity_test = baseline_test.groupby("author")["subjectivity"].mean()
+
 print("calculating lifespan")
 ### Lifespan ###
 troll_activity_days_test = (data_test.groupby("author")["publish_date"].max() - data_test.groupby("author")["publish_date"].min()).apply(lambda x: x.days)
@@ -57,8 +61,8 @@ baseline_follower_following_test = baseline_test.groupby("author")["followers"].
 
 print("combining and writing data")
 ### Combine data ###
-troll_features_test = pd.concat([troll_vs_troll_hashtag_hitrate_test.rename("h_hitrate"), troll_sentiment_test.rename("sentiment"), troll_activity_days_test.rename("lifespan"), troll_follower_following_test.rename("f_ratio")], axis=1)
-baseline_features_test = pd.concat([baseline_vs_troll_hashtag_hitrate_test.rename("h_hitrate"), baseline_sentiment_test.rename("sentiment"), baseline_activity_days_test.rename("lifespan"), baseline_follower_following_test.rename("f_ratio")], axis=1)
+troll_features_test = pd.concat([troll_vs_troll_hashtag_hitrate_test.rename("h_hitrate"), troll_sentiment_test.rename("sentiment"), troll_subjectivity_test.rename("subjectivity"), troll_activity_days_test.rename("lifespan"), troll_follower_following_test.rename("f_ratio")], axis=1)
+baseline_features_test = pd.concat([baseline_vs_troll_hashtag_hitrate_test.rename("h_hitrate"), baseline_sentiment_test.rename("sentiment"), baseline_subjectivity_test.rename("subjectivity"), baseline_activity_days_test.rename("lifespan"), baseline_follower_following_test.rename("f_ratio")], axis=1)
 troll_features_test["label"] = "troll"
 baseline_features_test["label"] = "baseline"
 combined_data_test = pd.concat([troll_features_test, baseline_features_test])

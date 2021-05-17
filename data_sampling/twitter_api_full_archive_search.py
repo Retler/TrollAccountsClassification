@@ -5,7 +5,7 @@ import time
 import pandas as pd
 import random
 
-HEADERS = {"Authorization": "Bearer AAAAAAAAAAAAAAAAAAAAAOAKNAEAAAAAcU2NZCJ8R8WO%2FDgVKx00BGm8IO4%3Drc61wrLOGqDeu28c7XYqp8DnYKx0vIQ7tTol7L5xMAUNBj50s0"}
+HEADERS = {"Authorization": "Bearer AAAAAAAAAAAAAAAAAAAAAOAKNAEAAAAAtQ9RmQQkKCa2a7aHC%2Bps6CUElIQ%3DjR22nKwAU6OIxlWFSKT9KckWzrslAuDwwgkyRbGJyFaEGptj47"}
 URL = "https://api.twitter.com/2/tweets/search/all"
 LIVENESS_URL = "https://europe-west3-es-staging-276908.cloudfunctions.net/liveness-probe"
 
@@ -13,7 +13,7 @@ def log(message):
     print(message)
 
 def read_author_ids() -> [str]:
-    with open('sample.txt') as f:
+    with open('celeb_ids.txt') as f:
         author_ids = f.read().split(',')
 
     return author_ids
@@ -101,18 +101,13 @@ def get_authors_tweets(author_id, start_time, end_time):
     return records
 
 def main():
-    author_ids = read_author_ids()[5000:]
-    random.shuffle(author_ids)
-    parsed_users = pd.read_csv("sample_with_data2.csv", lineterminator='\n').iloc[:,0]
+    author_ids = read_author_ids()
     
     start_time = "2016-01-01T00:00:00Z"
     end_time = "2016-12-31T23:59:59Z"
-    result_file = "sample_with_data2.csv"
+    result_file = "celeb_tweets.csv"
     
     for author_id in author_ids:
-        if author_id in parsed_users:
-            print(f"Author {author_id} already parsed. Skipping.")
-            continue
         result = get_authors_tweets(author_id, start_time, end_time)
         log(f"Parsed {len(result)} records for author {author_id} for {start_time} to {end_time}")
         log(f"Appending records to {result_file}")
@@ -124,4 +119,3 @@ def main():
             
 if __name__ == "__main__":
     main()
-    

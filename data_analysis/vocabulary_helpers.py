@@ -4,7 +4,7 @@ from gensim.parsing.preprocessing import strip_multiple_whitespaces
 punctuations = '!"$%&\'()*+,-./:;<=>?[\\]^_`{|}~'
 digits = '0123456789'
 table = str.maketrans("", "", punctuations + digits)
-additional_stopwords = ["rt", "-", "amp", "\|", "&", "�", "its", "it", "u", "im", "https", "httpst", "httpstco", "cant", "you", "thats", "youre", "#", "dont", "#a", ""]
+additional_stopwords = ["rt", "-", "amp", "\|", "&", "�", "its", "it", "u", "im", "cant", "you", "thats", "youre", "#", "dont", "#a", ""]
 HIT_RATE = 0
 
 def is_hashtag(word):
@@ -30,6 +30,6 @@ def preprocess(s, word_check=(lambda x: True)):
     no_punctuations = no_stopwords.translate(table) # remove punctuations
     no_multiple_whitespaces = strip_multiple_whitespaces(no_punctuations) # remove multiple whitespaces
     result = no_multiple_whitespaces.split()
-    result = [word for word in result if (word not in additional_stopwords and word_check(word))]
+    result = [word for word in result if (word not in additional_stopwords and word_check(word) and "https" not in word)]
     
     return result 

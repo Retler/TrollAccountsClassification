@@ -3,9 +3,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 plt.style.use('seaborn')
-plt.rcParams['font.size'] = '20'
 plt.rcParams['font.weight'] = 'bold'
 plt.rcParams['axes.labelweight'] = 'bold'
+plt.rcParams['axes.labelsize'] = '15'
+plt.rcParams['xtick.labelsize'] = '15'
+plt.rcParams['ytick.labelsize'] = '15'
 
 data = pd.read_csv("troll_data_2016_english.csv", lineterminator='\n', parse_dates=["publish_date"])
 baseline = pd.read_csv("baseline_data_2016_english.csv", lineterminator='\n', parse_dates=["publish_date"])
@@ -22,7 +24,7 @@ plt.hist([baseline_follower_following, troll_follower_following], weights=[weigh
 plt.legend()
 plt.xlabel("follower/following rate")
 plt.ylabel("density")
-plt.title("Distributions of the follower/following rates")
+plt.title("Distributions of the follower/following rates", fontsize=15, fontweight='bold')
 
 plt.subplot(1,2,2)
 labels = ["followers", "following"]
@@ -35,6 +37,6 @@ plt.bar(x + width/2, troll_bars, width, label='troll')
 plt.ylabel("Count")
 plt.xticks(x, labels=labels)
 plt.legend()
-plt.title("Average follower and following count per account")
+plt.title("Average follower and following count per account", fontsize=15, fontweight='bold')
 
 plt.show()

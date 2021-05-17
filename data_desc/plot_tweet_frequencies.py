@@ -2,12 +2,20 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from datetime import datetime
+import sys
+sys.path.append('./data')
 plt.style.use('seaborn')
+plt.rcParams['font.weight'] = 'bold'
+plt.rcParams['axes.labelweight'] = 'bold'
+plt.rcParams['axes.labelsize'] = '15'
+plt.rcParams['xtick.labelsize'] = '15'
+plt.rcParams['ytick.labelsize'] = '15'
+
 
 ### Import data ###
-data = pd.read_csv("tweets_full.csv", parse_dates=["date"])
+data = pd.read_csv("./data/tweets_full.csv", parse_dates=["publish_date"])
 
-data.rename(columns={"date": "datetime"}, inplace=True)
+data.rename(columns={"publish_date": "datetime"}, inplace=True)
 data["date"] = data["datetime"].apply(lambda x: x.date())
 data["week"] = data["datetime"].apply(lambda x: x.week)
 start_2016 = datetime.strptime("2016-01-01", "%Y-%m-%d").date()
@@ -23,29 +31,26 @@ left_right_filter = np.logical_or(data["account_category"] == "LeftTroll", data[
 left_right = data[left_right_filter]
 other = data[np.logical_not(left_right_filter)]
 
-plt.subplot(1, 2, 1)
-plt.plot(other.groupby("week")["author"].count(), linewidth=1, zorder=2)
-plt.title("Fearmonger, HashtagGamer, NewsFeed")
-plt.xlabel("week")
-plt.ylabel("tweet frequency")
+fig, (ax1, ax2) = plt.subplots(1, 2)
+fig.suptitle('Account category', x=0.5, y=0.02, verticalalignment='bottom', horizontalalignment='center', fontsize=15, fontweight='bold')
+ax1.plot(other.groupby("week")["author"].count(), linewidth=1, zorder=2, label="Tweets")
+ax1.set_title("Fearmonger, HashtagGamer, NewsFeed", fontsize='15', fontweight='bold')
+ax1.set_ylabel("Tweet frequency")
 week_of_election = 45
 week_of_dnc_hack_and_pussygate = 40
 week_of_hillary_fainting = 36
 
-plt.axvline(x=week_of_election, color="green", linewidth=1, label="Election", zorder=1, alpha=0.5, linestyle='--')
-plt.axvline(x=week_of_dnc_hack_and_pussygate, color='r', linewidth=1, label="Pussygate", zorder=1, alpha=0.5, linestyle='--')
-plt.axvline(x=week_of_hillary_fainting, color='m', linewidth=1, label="Hillary faint", zorder=1, alpha=0.5, linestyle='--')
-plt.legend()
+ax1.axvline(x=week_of_election, color="green", linewidth=2, label="Election", zorder=1, alpha=0.5, linestyle='--')
+ax1.axvline(x=week_of_dnc_hack_and_pussygate, color='r', linewidth=2, label="Pussygate", zorder=1, alpha=0.5, linestyle='--')
+ax1.axvline(x=week_of_hillary_fainting, color='m', linewidth=2, label="Hillary faint", zorder=1, alpha=0.5, linestyle='--')
+ax1.legend(fontsize=13)
 
-plt.subplot(1, 2, 2)
-plt.plot(left_right.groupby("week")["author"].count(), linewidth=1, zorder=2)
-plt.title("LeftTroll, RightTroll")
-plt.xlabel("week")
-plt.ylabel("tweet frequency")
+ax2.plot(left_right.groupby("week")["author"].count(), linewidth=1, zorder=2, label="Tweets")
+ax2.set_title("LeftTroll, RightTroll", fontsize='15', fontweight='bold')
 
-plt.axvline(x=week_of_election, color="green", linewidth=1, label="Election", zorder=1, alpha=0.5, linestyle='--')
-plt.axvline(x=week_of_dnc_hack_and_pussygate, color='r', linewidth=1, label="Pussygate", zorder=1, alpha=0.5, linestyle='--')
-plt.axvline(x=week_of_hillary_fainting, color='m', linewidth=1, label="Hillary faint", zorder=1, alpha=0.5, linestyle='--')
-plt.legend()
+ax2.axvline(x=week_of_election, color="green", linewidth=2, label="Election", zorder=1, alpha=0.5, linestyle='--')
+ax2.axvline(x=week_of_dnc_hack_and_pussygate, color='r', linewidth=2, label="Pussygate", zorder=1, alpha=0.5, linestyle='--')
+ax2.axvline(x=week_of_hillary_fainting, color='m', linewidth=2, label="Hillary faint", zorder=1, alpha=0.5, linestyle='--')
+ax2.legend(fontsize=13)
 
 plt.show()

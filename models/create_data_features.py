@@ -6,7 +6,7 @@ from vocabulary_helpers import preprocess, is_hashtag, is_not_hashtag, hit_rate
 
 # 1. Hashtag similarities
 # 2. Sentiment
-# 3. Activity variability
+# 3. subjectivity
 # 4. Lifespan
 
 data = pd.read_csv("troll_data_2016_english.csv", lineterminator='\n', parse_dates=["publish_date"])
@@ -53,6 +53,14 @@ baseline_sentiment_train = baseline_train.groupby("author")["sentiment"].mean()
 baseline_sentiment_val = baseline_val.groupby("author")["sentiment"].mean()
 baseline_sentiment_test = baseline_test.groupby("author")["sentiment"].mean()
 
+### Subjectivity ###
+troll_subjectivity_train = data_train.groupby("author")["subjectivity"].mean()
+troll_subjectivity_val = data_val.groupby("author")["subjectivity"].mean()
+troll_subjectivity_test = data_test.groupby("author")["subjectivity"].mean()
+baseline_subjectivity_train = baseline_train.groupby("author")["subjectivity"].mean()
+baseline_subjectivity_val = baseline_val.groupby("author")["subjectivity"].mean()
+baseline_subjectivity_test = baseline_test.groupby("author")["subjectivity"].mean()
+
 ### Activity variability ### Reject??
 std_troll_activity = data.groupby(["author", "publish_date"])["content"].count().groupby("author").std()
 std_baseline_activity = baseline.groupby(["author", "publish_date"])["content"].count().groupby("author").std()
@@ -75,13 +83,13 @@ baseline_follower_following_val = baseline_val.groupby("author")["followers"].me
 baseline_follower_following_test = baseline_test.groupby("author")["followers"].mean() / (baseline_test.groupby("author")["following"].mean() + 1)
 
 ### Combine data ###
-troll_features_train = pd.concat([troll_vs_troll_hashtag_hitrate_train.rename("h_hitrate"), troll_sentiment_train.rename("sentiment"), troll_activity_days_train.rename("lifespan"), troll_follower_following_train.rename("f_ratio")], axis=1)
-troll_features_val = pd.concat([troll_vs_troll_hashtag_hitrate_val.rename("h_hitrate"), troll_sentiment_val.rename("sentiment"), troll_activity_days_val.rename("lifespan"), troll_follower_following_val.rename("f_ratio")], axis=1)
-troll_features_test = pd.concat([troll_vs_troll_hashtag_hitrate_test.rename("h_hitrate"), troll_sentiment_test.rename("sentiment"), troll_activity_days_test.rename("lifespan"), troll_follower_following_test.rename("f_ratio")], axis=1)
+troll_features_train = pd.concat([troll_vs_troll_hashtag_hitrate_train.rename("h_hitrate"), troll_sentiment_train.rename("sentiment"), troll_subjectivity_train.rename("subjectivity"),  troll_activity_days_train.rename("lifespan"), troll_follower_following_train.rename("f_ratio")], axis=1)
+troll_features_val = pd.concat([troll_vs_troll_hashtag_hitrate_val.rename("h_hitrate"), troll_sentiment_val.rename("sentiment"), troll_subjectivity_val.rename("subjectivity"), troll_activity_days_val.rename("lifespan"), troll_follower_following_val.rename("f_ratio")], axis=1)
+troll_features_test = pd.concat([troll_vs_troll_hashtag_hitrate_test.rename("h_hitrate"), troll_sentiment_test.rename("sentiment"), troll_subjectivity_test.rename("subjectivity"), troll_activity_days_test.rename("lifespan"), troll_follower_following_test.rename("f_ratio")], axis=1)
 
-baseline_features_train = pd.concat([baseline_vs_troll_hashtag_hitrate_train.rename("h_hitrate"), baseline_sentiment_train.rename("sentiment"), baseline_activity_days_train.rename("lifespan"), baseline_follower_following_train.rename("f_ratio")], axis=1)
-baseline_features_val = pd.concat([baseline_vs_troll_hashtag_hitrate_val.rename("h_hitrate"), baseline_sentiment_val.rename("sentiment"), baseline_activity_days_val.rename("lifespan"), baseline_follower_following_val.rename("f_ratio")], axis=1)
-baseline_features_test = pd.concat([baseline_vs_troll_hashtag_hitrate_test.rename("h_hitrate"), baseline_sentiment_test.rename("sentiment"), baseline_activity_days_test.rename("lifespan"), baseline_follower_following_test.rename("f_ratio")], axis=1)
+baseline_features_train = pd.concat([baseline_vs_troll_hashtag_hitrate_train.rename("h_hitrate"), baseline_sentiment_train.rename("sentiment"), baseline_subjectivity_train.rename("subjectivity"), baseline_activity_days_train.rename("lifespan"), baseline_follower_following_train.rename("f_ratio")], axis=1)
+baseline_features_val = pd.concat([baseline_vs_troll_hashtag_hitrate_val.rename("h_hitrate"), baseline_sentiment_val.rename("sentiment"), baseline_subjectivity_val.rename("subjectivity"), baseline_activity_days_val.rename("lifespan"), baseline_follower_following_val.rename("f_ratio")], axis=1)
+baseline_features_test = pd.concat([baseline_vs_troll_hashtag_hitrate_test.rename("h_hitrate"), baseline_sentiment_test.rename("sentiment"), baseline_subjectivity_test.rename("subjectivity"), baseline_activity_days_test.rename("lifespan"), baseline_follower_following_test.rename("f_ratio")], axis=1)
 
 troll_features_train["label"] = "troll"
 troll_features_val["label"] = "troll"

@@ -3,9 +3,11 @@ from textblob import TextBlob
 import matplotlib.pyplot as plt
 import numpy as np
 plt.style.use('seaborn')
-plt.rcParams['font.size'] = '20'
 plt.rcParams['font.weight'] = 'bold'
 plt.rcParams['axes.labelweight'] = 'bold'
+plt.rcParams['axes.labelsize'] = '15'
+plt.rcParams['xtick.labelsize'] = '15'
+plt.rcParams['ytick.labelsize'] = '15'
 
 data = pd.read_csv("troll_data_2016_english.csv", lineterminator='\n')
 baseline = pd.read_csv("baseline_data_2016_english.csv", lineterminator='\n')

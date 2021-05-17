@@ -16,7 +16,7 @@ scaler.fit(X_train)
 X_train_transformed = scaler.transform(X_train)
 X_test_transformed = scaler.transform(X_test)
 
-rf_clf = RandomForestClassifier(n_estimators=25, max_features="sqrt", max_depth=None)
+rf_clf = RandomForestClassifier(n_estimators=50, max_features="sqrt", max_depth=80)
 rf_clf.fit(X_train_transformed, y_train)
 rf_y_test_pred = rf_clf.predict(X_test_transformed)
 rf_test_report = classification_report(y_test, rf_y_test_pred)

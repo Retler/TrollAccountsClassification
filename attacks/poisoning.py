@@ -9,9 +9,11 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 plt.style.use('seaborn')
-plt.rcParams['font.size'] = '20'
 plt.rcParams['font.weight'] = 'bold'
 plt.rcParams['axes.labelweight'] = 'bold'
+plt.rcParams['axes.labelsize'] = '15'
+plt.rcParams['xtick.labelsize'] = '15'
+plt.rcParams['ytick.labelsize'] = '15'
 
 def poison(y, p):
     return [(1-s) if np.random.rand() < p else s for s in y]
@@ -26,13 +28,13 @@ data_train = pd.read_csv("combined_data_train.csv")
 data_test = pd.read_csv("combined_data_test.csv")
 data_test = pd.read_csv("combined_data_val.csv")
 
-X_train,y_train = data_train[["h_hitrate", "sentiment", "lifespan"]], data_train["label"]
+X_train,y_train = data_train[["h_hitrate", "sentiment", "lifespan", "subjectivity"]], data_train["label"]
 y_train = y_train.map({"troll": 1, "baseline": 0})
 
-X_val,y_val = data_test[["h_hitrate", "sentiment", "lifespan"]], data_test["label"]
+X_val,y_val = data_test[["h_hitrate", "sentiment", "lifespan", "subjectivity"]], data_test["label"]
 y_val = y_val.map({"troll": 1, "baseline": 0})
 
-X_test,y_test = data_test[["h_hitrate", "sentiment", "lifespan"]], data_test["label"]
+X_test,y_test = data_test[["h_hitrate", "sentiment", "lifespan", "subjectivity"]], data_test["label"]
 y_test = y_test.map({"troll": 1, "baseline": 0})
 
 scaler = StandardScaler()
@@ -69,7 +71,7 @@ print("RF report for p=0.5")
 print(rf_report)
 print()
 
-models = [RandomForestClassifier(n_estimators=25, max_depth=None, max_features='sqrt'), KNeighborsClassifier(n_neighbors=200, weights='uniform'), svm.SVC(C=0.1, gamma=0.01, kernel='sigmoid')]
+models = [RandomForestClassifier(n_estimators=50, max_depth=80, max_features='sqrt'), KNeighborsClassifier(n_neighbors=200, weights='uniform'), svm.SVC(C=0.1, gamma=0.01, kernel='sigmoid')]
 ps = np.linspace(0,1,50)
 meanss = []
 stdss = []
@@ -89,8 +91,9 @@ for m in models:
     stdss.append(np.array(accss).std(axis=0))
 
 colors = ['c', 'm', 'y']
-for means,stds,m,c in zip(meanss, stdss, models, colors):
-    plt.plot(ps, means, color=c, label=type(m).__name__)
+clf_names = ["Random Forest", "KNN", "SVM"]
+for means,stds,m,c,n in zip(meanss, stdss, models, colors, clf_names):
+    plt.plot(ps, means, color=c, label=n)
 
 plt.xlabel("p (poisoning rate)")
 plt.ylabel("model accuracy")

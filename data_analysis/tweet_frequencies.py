@@ -2,9 +2,11 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 plt.style.use('seaborn')
-plt.rcParams['font.size'] = '20'
 plt.rcParams['font.weight'] = 'bold'
 plt.rcParams['axes.labelweight'] = 'bold'
+plt.rcParams['axes.labelsize'] = '15'
+plt.rcParams['xtick.labelsize'] = '15'
+plt.rcParams['ytick.labelsize'] = '15'
 
 data = pd.read_csv("troll_data_2016_english.csv", lineterminator='\n', parse_dates=["publish_date"])
 baseline = pd.read_csv("baseline_data_2016_english.csv", lineterminator='\n', parse_dates=["publish_date"])
@@ -22,7 +24,7 @@ baseline.groupby(["month", "author"]).count()["content"].groupby("month").median
 
 month_of_election = list.index(month_order, "November")
 
-plt.axvline(x=month_of_election, color="green", linewidth=1, label="Election", zorder=1, alpha=0.5, linestyle='--')
+plt.axvline(x=month_of_election, color="m", linewidth=2, label="Election", zorder=1, alpha=0.5, linestyle='--')
 plt.ylabel("Median Tweets/User")
 plt.legend()
 

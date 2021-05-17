@@ -5,6 +5,9 @@ import matplotlib.pyplot as plt
 plt.style.use('seaborn')
 plt.rcParams['font.weight'] = 'bold'
 plt.rcParams['axes.labelweight'] = 'bold'
+plt.rcParams['axes.labelsize'] = '15'
+plt.rcParams['xtick.labelsize'] = '15'
+plt.rcParams['ytick.labelsize'] = '15'
 
 data = pd.read_csv("troll_data_2016_english.csv", lineterminator='\n', parse_dates=["publish_date"])
 baseline = pd.read_csv("baseline_data_2016_english.csv", lineterminator='\n', parse_dates=["publish_date"])
@@ -19,7 +22,7 @@ baseline_activity_cdf = baseline_activity_days.value_counts().sort_index().cumsu
 (baseline_activity_cdf / baseline_activity_days.size).plot(label="Baseline")
 plt.xlabel("Lifespan in days")
 plt.ylabel("Account share")
-plt.title("CDF of the account lifespan in 2016")
+plt.title("CDF of the account lifespan in 2016", fontsize=15, fontweight='bold')
 plt.legend()
 
 plt.subplot(1, 2, 2)
@@ -30,7 +33,7 @@ baseline["month"] = baseline["publish_date"].apply(lambda x: x.month)
 plt.xticks(np.arange(12) + 1, ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"], rotation=0.35)
 plt.xlabel("Month")
 plt.ylabel("Active accounts share")
-plt.title("Active accounts per month in 2016")
+plt.title("Active accounts per month in 2016", fontsize=15, fontweight='bold')
 plt.legend()
 
 plt.show()

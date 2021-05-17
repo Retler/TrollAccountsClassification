@@ -6,8 +6,14 @@ import pandas as pd
 from datetime import datetime
 import matplotlib.pyplot as plt
 import numpy as np
+plt.style.use('seaborn')
+plt.rcParams['font.weight'] = 'bold'
+plt.rcParams['axes.labelweight'] = 'bold'
+plt.rcParams['axes.labelsize'] = '15'
+plt.rcParams['xtick.labelsize'] = '15'
+plt.rcParams['ytick.labelsize'] = '15'
 
-DATESET = "user_data.csv"
+DATESET = "./data_sampling/user_data.csv"
 
 data = pd.read_csv(DATESET, header=None, names=["author", "created_at", "followers", "following"])
 data.drop_duplicates(subset=['author'], inplace=True)
@@ -26,21 +32,20 @@ ten_year_accounts["age_weeks"] = ten_year_accounts["age_weeks"].apply(lambda x: 
 five_year_accounts = ten_year_accounts[ten_year_accounts["age_weeks"] <= 260]
 
 # Plot moving avg. of followers
-plt.subplot(1,2,1)
-five_year_accounts.groupby("age_weeks")["followers"].mean().rolling(5, 1).mean().plot()
-plt.xlabel("Account age (weeks)")
-plt.ylabel("Followers")
-plt.title("5 week MA of 'followers' development")
+fig, (ax1, ax2) = plt.subplots(1, 2)
+ax1.plot(five_year_accounts.groupby("age_weeks")["followers"].mean().rolling(5, 1).mean())
+fig.suptitle('Account age (weeks)', x=0.5, y=0.02, verticalalignment='bottom', horizontalalignment='center', fontsize=15, fontweight='bold')
+ax1.set_ylabel("Followers")
+ax1.set_title("5 week MA of 'followers' development", fontsize='15', fontweight='bold')
 
 # Export
 # ten_year_accounts.groupby("age_weeks")["followers"].mean().rolling(10, 1).mean().to_csv("followers_10wk_avg.csv")
 
 # Plot moving avg. of following
-plt.subplot(1,2,2)
-five_year_accounts.groupby("age_weeks")["following"].mean().rolling(5, 1).mean().plot()
-plt.xlabel("Account age (weeks)")
-plt.ylabel("Following")
-plt.title("5 week MA of 'following' development")
+
+ax2.plot(five_year_accounts.groupby("age_weeks")["following"].mean().rolling(5, 1).mean())
+ax2.set_ylabel("Following")
+ax2.set_title("5 week MA of 'following' development", fontsize='15', fontweight='bold')
 
 plt.show()
 # Export

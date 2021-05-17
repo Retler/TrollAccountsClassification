@@ -16,13 +16,13 @@ data_train = pd.read_csv("combined_data_train.csv")
 data_val = pd.read_csv("combined_data_val.csv")
 data_test = pd.read_csv("combined_data_test.csv")
 
-X_train,y_train = data_train[["h_hitrate", "sentiment", "lifespan"]], data_train["label"]
+X_train,y_train = data_train[["h_hitrate", "sentiment", "lifespan", "subjectivity"]], data_train["label"]
 y_train = y_train.map({"troll": 1, "baseline": 0})
 
-X_val,y_val = data_val[["h_hitrate", "sentiment", "lifespan"]], data_val["label"]
+X_val,y_val = data_val[["h_hitrate", "sentiment", "lifespan", "subjectivity"]], data_val["label"]
 y_val = y_val.map({"troll": 1, "baseline": 0})
 
-X_test,y_test = data_test[["h_hitrate", "sentiment", "lifespan"]], data_test["label"]
+X_test,y_test = data_test[["h_hitrate", "sentiment", "lifespan", "subjectivity"]], data_test["label"]
 y_test = y_test.map({"troll": 1, "baseline": 0})
 
 scaler = StandardScaler()
