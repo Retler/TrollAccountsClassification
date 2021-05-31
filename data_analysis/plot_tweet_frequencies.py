@@ -34,7 +34,6 @@ fig, (ax1, ax2) = plt.subplots(1, 2)
 fig.suptitle('Week', x=0.5, y=0.02, verticalalignment='bottom', horizontalalignment='center', fontsize=15, fontweight='bold')
 ax2.plot(other.groupby("week")["author"].count(), linewidth=1, zorder=2, label="Tweets")
 ax2.set_title("Fearmonger, HashtagGamer, NewsFeed", fontsize='15', fontweight='bold')
-ax2.set_ylabel("Tweet frequency")
 week_of_election = 45
 week_of_dnc_hack_and_pussygate = 40
 week_of_hillary_fainting = 36
@@ -51,5 +50,8 @@ ax1.axvline(x=week_of_election, color="green", linewidth=2, label="Election", zo
 ax1.axvline(x=week_of_dnc_hack_and_pussygate, color='r', linewidth=2, label="Pussygate", zorder=1, alpha=0.5, linestyle='--')
 ax1.axvline(x=week_of_hillary_fainting, color='m', linewidth=2, label="Hillary faint", zorder=1, alpha=0.5, linestyle='--')
 ax1.legend(fontsize=13)
+ylim = ax1.get_ylim()
+ax2.set_ylim(ylim)
+ax1.set_ylabel("Tweet frequency")
 
 plt.show()
