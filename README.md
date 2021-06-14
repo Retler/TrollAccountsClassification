@@ -1,5 +1,5 @@
 # TrollAccountsClassification
-This repository contains work for my Masters Thesis on identifying spam campaign collaborators on social media. In this context, the spam campaign is the IRA (Internet Research Agency) attempt of meddling with the US elections, by spreading misinformation and polarized political views on Twitter.
+This repository contains work for my Masters Thesis on identifying spam campaign collaborators on social media. In this context, the spam campaign is the IRA (Internet Research Agency) attempt of meddling with the US elections, by spreading disinformation and polarized political views on Twitter.
 
 # Dataset
 ## Inauthentic accounts
